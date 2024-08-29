@@ -1,0 +1,117 @@
+querys
+
+--Combinación de Tablas: Escribe una consulta que combine las tablas Clientes y
+--Cuentas Bancarias para listar todos los clientes con sus respectivas cuentas bancarias.
+
+SELECT 
+  c.ID_Cliente,
+  c.Nombre,
+  o.Numero_Cuenta,
+  o.Tipo_Cuenta
+
+FROM ID_Cliente AS c
+INNER JOIN Cuentas_Bancarias AS o
+ON c.ID_Cliente = o.ID_Cliente
+
+	
+
+--	Uso de DISTINCT: Crea una consulta que utilice DISTINCT para obtener todos los tipos
+--únicos de cuentas bancarias que existen en el banco.
+
+SELECT DISTINCT Tipo_Cuenta
+FROM Cuentas_Bancarias
+
+
+--Uso de LIKE: Escribe una consulta para buscar clientes cuyo nombre comience con una
+--letra específica utilizando la cláusula LIKE.
+
+select * from clientes where Clientes Like 'a%'
+
+
+
+--Uso de IN: Escribe una consulta que utilice IN para listar todas las transacciones
+--realizadas en ciertas sucursales específicas.
+
+select * from Transacciones 
+Where Sucursales IN ('Tivoli','Zona 10','Centro Historico')
+
+
+--Uso de BETWEEN: Crea una consulta para encontrar todas las transacciones realizadas
+--dentro de un rango de fechas utilizando BETWEEN.
+
+select * from Transacciones 
+where Fecha_Transaccion between 10/08/1995 and 20/05/2024
+
+ 
+--Uso de Subconsultas: Escribe una subconsulta para listar los clientes que tienen un
+--saldo mayor que el saldo promedio de todas las cuentas.
+-- Subconsulta para calcular el saldo promedio de todas las cuentas
+WITH SaldoPromedio AS (
+    SELECT AVG(Saldo) AS Saldo_Promedio
+    FROM Cuentas_Bancarias
+)
+
+SELECT DISTINCT c.ID_Cliente, c.Nombre
+FROM Clientes c
+JOIN Cuentas_Bancarias cb ON c.ID_Cliente = cb.ID_Cliente
+WHERE cb.Saldo > (SELECT Saldo_Promedio FROM SaldoPromedio)
+
+
+
+--Uso de GROUP BY: Crea una consulta que agrupe las transacciones por tipo y calcule el
+--número total de transacciones para cada tipo utilizando GROUP BY.
+
+SELECT ID_Tipo_Transacción, COUNT(*) AS Numero_Transacciones
+FROM Transacciones
+GROUP BY ID_Tipo_Transacción
+
+
+ 
+--Uso de HAVING: Escribe una consulta similar a la anterior, pero agrega una condición
+--HAVING para mostrar solo los tipos de transacción con más de un cierto número de
+--transacciones.
+
+SELECT ID_Tipo_Transacción, COUNT(*) AS Numero_Transacciones
+FROM Transacciones
+GROUP BY ID_Tipo_Transacción
+HAVING COUNT(*) > 3
+
+
+--Uso de COUNT: Crea una consulta que utilice COUNT para determinar cuántas cuentas
+--bancarias están activas en el banco.
+
+select count(*) AS Total_Cuentas_Bancarias from Cuentas_Bancarias 
+
+
+ 
+--Uso de SUM: Escribe una consulta que utilice SUM para calcular el total de dinero
+--depositado en un tipo específico de cuenta bancaria.
+
+SELECT SUM(Saldo) AS Total_Dinero_Depositado 
+FROM Cuentas_Bancarias
+WHERE Tipo_Cuenta = ('ahorro')
+
+ 
+--Uso de MAX y MIN: Crea una consulta que utilice MAX y MIN para encontrar el mayor
+--y menor saldo de cuenta entre todos los clientes.
+
+select min (saldo)
+select max (saldo)
+  c.ID_Cliente,
+  c.Nombre,
+  o.Saldo,
+  
+FROM ID_Cliente AS c
+INNER JOIN Cuentas_Bancarias AS o
+ON c.ID_Cliente = o.ID_Cliente
+
+	
+
+
+
+
+
+
+
+
+
