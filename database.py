@@ -6,8 +6,8 @@ class BaseDeDatos:
         try:
             self.conexion = pyodbc.connect(
                 'DRIVER={ODBC Driver 17 for SQL Server};'
-                #'SERVER=PC-DEV14;'
-                'SERVER=LEONEL;'
+                'SERVER=PC-DEV14;'
+                #'SERVER=LEONEL;'
                 'DATABASE=Gestion_Operaciones_Bancarias;'
                 'UID=Leonel;'
                 'PWD=Leonel'
@@ -16,6 +16,8 @@ class BaseDeDatos:
         except pyodbc.Error as e:
             print("Error al conectar la base de datos",e)
             raise
+
+        
     def ejecutar_consulta(self, consulta, parametros = None):
         try:
             if parametros:

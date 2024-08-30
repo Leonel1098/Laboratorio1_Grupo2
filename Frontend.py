@@ -137,6 +137,9 @@ def VentanaTransferencia():
     BotonIngresar = CTkButton(root4, text="REALIZAR TRANSFERENCIA", font=("Arial", 14), command=Ingresar)
     BotonIngresar.pack(pady=20)
 
+def salir():
+    root.destroy()
+
 # Frontend Main
 FstAlien = ImageTk.PhotoImage(Image.open("bank.png"))
 FstAlLabel = tk.Label(image=FstAlien)
@@ -152,7 +155,7 @@ Retiro = CTkButton(root, text='RETIRO', font=("Arial", 16), command=VentanaRetir
 Retiro.pack(pady=20)
 Transferencia = CTkButton(root, text='TRANSFERENCIA', font=("Arial", 16), command=VentanaTransferencia)
 Transferencia.pack(pady=20)
-Salir = CTkButton(root, text='SALIR', font=("Arial", 16))
+Salir = CTkButton(root, text='SALIR', font=("Arial", 16),command=salir)
 Salir.pack(pady=20)
 
 root.mainloop()
