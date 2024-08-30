@@ -97,11 +97,11 @@ CONSTRAINT FK_SucursalID3 FOREIGN KEY (SucursalID) REFERENCES Sucursales(Sucursa
 
 INSERT INTO Transacciones (Tipo_Transaccion, FechaTransaccion, Monto, CuentaOrigenID, CuentaDestinoID, SucursalID)
 VALUES
-('Deposito', '2024-06-10', 500.00, 3, 6, 1),
+('Deposito', '2024-06-10', 500.00, 3, 5, 1),
 ('Retiro', '2024-06-11', 200.00, 2, 4, 2),
 ('Transferencia', '2024-06-12', 1500.00, 3, 4, 3),
-('Deposito', '2024-06-13', 700.00, 6, 5, 5),
-('Transferencia', '2024-08-28', 1000.00, 6, 2, 1);
+('Deposito', '2024-06-13', 700.00, 1, 5, 5),
+('Transferencia', '2024-08-28', 1000.00,3, 2, 1);
 
 
 
@@ -205,12 +205,13 @@ BEGIN
 END;
 
 EXEC sp_Realizar_Retiro
-    @CuentaOrigenID = 6,
+    @CuentaOrigenID = 5,
     @Monto = 500.00,
     @SucursalID = 1;
 
 ---------------------------------PROCEDIENTO TRANSACCION----------------------------------------------
 CREATE PROCEDURE Realizar_Transferencia
+	@CuentaDestinoID BIGINT,
     @CuentaOrigenID BIGINT,
     @Monto DECIMAL(15, 2),
     @SucursalID INT = NULL
@@ -266,7 +267,7 @@ END;
 
 
 EXEC Realizar_Transferencia
-    @CuentaOrigenID = 6,
+    @CuentaOrigenID = 3,
     @CuentaDestinoID = 2,
     @Monto = 500.00,
     @SucursalID = 1;
@@ -289,9 +290,89 @@ drop table Cliente
 --1. Combinación de Tablas: Escribe una consulta que combine las tablas Clientes y
 --Cuentas Bancarias para listar todos los clientes con sus respectivas cuentas bancarias.
 
-SELECT c.ClienteID, c.Nombre, c.Direccion, c.Correo, c.Telefono, c.NumeroIdentificacion, o.Numero_Cuenta, o.Tipo_Cuenta, o.Saldo, o.Fecha_Apertura
-FROM ClienteID AS c
-INNER JOIN Cuentas_Bancarias AS o
-ON c.ClienteID = o.ClienteID
+SELECT c.ClienteID, c.Nombre, c.Direccion, c.Correo, c.Telefono, c.NumeroIdentificacion,o.CuentaID, o.Numero_Cuenta, o.Tipo_Cuenta, 
+		o.Saldo, o.Fecha_Apertura,s.NombreSucursal
+FROM Cliente AS c INNER JOIN Cuentas_Bancarias AS o ON c.ClienteID = o.ClienteID
+INNER JOIN Sucursales AS s ON o.SucursalID = s.SucursalID
 
-Numero_Cuenta, Tipo_Cuenta, Saldo, Fecha_Apertura, ClienteID, SucursalID
+--2. Uso de DISTINCT: Crea una consulta que utilice DISTINCT para obtener todos los tipos
+---únicos de cuentas bancarias que existen en el banco.
+
+SELECT DISTINCT Tipo_Cuenta FROM Cuentas_Bancarias;
+
+---3. Uso de LIKE: Escribe una consulta para buscar clientes cuyo nombre comience con una
+---letra específica utilizando la cláusula LIKE.
+
+SELECT * FROM Cliente WHERE Nombre Like 'a%'
+
+----4. Uso de IN: Escribe una consulta que utilice IN para listar todas las transacciones
+---realizadas en ciertas sucursales específicas.
+
+SELECT * FROM Transacciones WHERE SucursalID IN (1, 3, 5);
+
+---5. Uso de BETWEEN: Crea una consulta para encontrar todas las transacciones realizadas
+---dentro de un rango de fechas utilizando BETWEEN.
+
+SELECT * FROM Transacciones Where FechaTransaccion BETWEEN '10/08/1995' and '20/11/2024'
+
+---6.Uso de Subconsultas: Escribe una subconsulta para listar los clientes que tienen un
+---saldo mayor que el saldo promedio de todas las cuentas.
+
+WITH SaldoPromedio AS (
+    SELECT AVG(Saldo) AS Saldo_Promedio
+    FROM Cuentas_Bancarias
+)
+
+SELECT DISTINCT * FROM Cliente c
+JOIN Cuentas_Bancarias cb ON c.ClienteID = cb.CLienteID
+WHERE cb.Saldo > (SELECT Saldo_Promedio FROM SaldoPromedio)
+
+
+---7. Uso de GROUP BY: Crea una consulta que agrupe las transacciones por tipo y calcule el
+---número total de transacciones para cada tipo utilizando GROUP BY.
+
+SELECT 
+    Tipo_Transaccion, 
+    COUNT(*) AS Numero_Transacciones
+FROM 
+    Transacciones
+GROUP BY 
+    Tipo_Transaccion;
+
+---8. Uso de HAVING: Escribe una consulta similar a la anterior, pero agrega una condición
+---HAVING para mostrar solo los tipos de transacción con más de un cierto número de transacciones.
+
+SELECT Tipo_Transaccion, COUNT(*) AS Numero_Transacciones FROM Transacciones
+GROUP BY Tipo_Transaccion
+HAVING COUNT(*) > 1
+
+---9.Uso de COUNT: Crea una consulta que utilice COUNT para determinar cuántas cuentas
+---bancarias están activas en el banco.
+
+select count(*) AS Total_Cuentas_Bancarias from Cuentas_Bancarias 
+
+---10.Uso de SUM: Escribe una consulta que utilice SUM para calcular el total de dinero
+---depositado en un tipo específico de cuenta bancaria.
+
+SELECT SUM(Saldo) AS Total_Dinero_Depositado 
+FROM Cuentas_Bancarias
+WHERE Tipo_Cuenta = ('Corriente')
+
+----11. Uso de MAX y MIN: Crea una consulta que utilice MAX y MIN para encontrar el mayor
+---y menor saldo de cuenta entre todos los clientes.
+SELECT 
+    MIN(o.Saldo) AS SaldoMinimo,
+    MAX(o.Saldo) AS SaldoMaximo
+FROM 
+    Cuentas_Bancarias AS o;
+
+-- Obtener la lista de clientes y saldos de sus cuentas
+SELECT 
+    c.ClienteID, 
+    c.Nombre, 
+    o.Saldo
+FROM 
+    Cliente AS c
+INNER JOIN 
+    Cuentas_Bancarias AS o ON c.ClienteID = o.ClienteID;
+
